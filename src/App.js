@@ -1,33 +1,28 @@
 import { Component } from 'react';
+import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import Header from './Components/Header';
+import List from './Components/List';
+import Create from './Components/Create';
+import Detail from './Components/Detail';
 import './App.css';
 
+
 class App extends Component {
-
-  state = { data: [] }
-
-  fetchData = async function() {
-    let url = 'https://serene-garden-03124.herokuapp.com/scientists';
-    let response = await fetch(url);
-    let data = await response.json();
-    this.setState({data});
-  }
 
   render() {
 
     return (
-      <>
-      <button onClick={() => this.fetchData()}>Get the Data!</button>
-      <h1>Heres the Data:</h1>
-      <p>{this.state.data.map((scientist) => {
-        return (
-          <div className="scientist-div">
-          <h3>{scientist.name}</h3>
-          <h3>Currently living: {scientist.living ? 'true' : 'false'}</h3>
-          <h3>Specialty: {scientist.specialty}</h3>
-          </div>
-        );
-      })}</p>
-      </>
+      <section className='app'>
+        <BrowserRouter>
+          <Header />
+          <Switch>
+            <Route path='/create' component={Create} />
+            <Route path='/scientists/:id' component={Detail} />
+            <Route path='/' component={List} />
+          </Switch>
+        </BrowserRouter>
+      </section>
+
     )
   }
 }

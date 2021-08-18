@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import { getScientists } from '../fetch-utils';
+import { Link } from 'react-router-dom';
 
 class List extends Component {
 
@@ -12,7 +13,13 @@ class List extends Component {
 
     render() {
         return (
-            <h1>List</h1>
+            this.state.data.map(scientist => {
+                return (
+                <div className="scientist-link-item" key={scientist.id}>
+                    <Link to={`/scientists/${scientist.id}`}>{scientist.name}</Link>
+                </div>
+                )
+            })
         )
     }
 }

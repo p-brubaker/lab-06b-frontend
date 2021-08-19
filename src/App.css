@@ -1,3 +1,39 @@
 a.active {
   color: tomato;
 }
+
+.message {
+  min-width: 100vw;
+  font-size: 3rem;
+}
+
+.is-error {
+  background-color: tomato;
+}
+
+.success {
+  background-color: forestgreen;
+}
+
+.scientist-mug {
+  max-width: 100px;
+  border: 2px solid grey;
+  border-radius: 50%;
+  margin: 5px;
+  padding: 4px;
+}
+
+.scientist-link-item {
+  display: flex;
+  flex-direction: column;
+  max-width: 120px;
+  margin: 10px;
+  border: 2px solid black;
+  border-radius: 4px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.list-container {
+  display: flex;
+}

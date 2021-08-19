@@ -1,59 +1,107 @@
 import { Component } from 'react';
-import { getScientist, getSpecialties, getIdByName, putScientist } from '../fetch-utils';
+import { getScientist, getSpecialties, putScientist, getIdByName } from '../fetch-utils';
+import classNames from 'classnames';
 
 class Detail extends Component {
 
-    state = {}
+    state = {
+        scientist: {},
+        specialties: [],
+        message: ''
+    }
 
     async componentDidMount() {
         const id = this.props.match.params.id;
-        const data = await getScientist(id);
-        this.setState(data)
+        const specialties = await getSpecialties();
+        const scientist = await getScientist(id);
+        const specialtyId = await getIdByName(specialties, scientist.specialty);
+        this.setState({ 
+            specialties,
+            scientist: {...scientist, specialty: specialtyId}
+         })
     }
 
     handleChange(e, key) {
-        console.log(this.state);
         this.setState({
-            ...this.state,
-            [key]: e.target.value
-        } )
+            scientist: {...this.state.scientist, [key]: e.target.value }
+        })
     }
 
     async handleSubmitChanges(e) {
         e.preventDefault();
-        console.log(this.state);
-        const specialties = await getSpecialties();
-        const specialtyId = await getIdByName(specialties, this.state.specialty);
-        const result = await putScientist(this.state.id, {
-            name: this.state.name,
-            living: this.state.living,
-            specialties_id: specialtyId
-        })
-        console.log(result);
-        return result;
+        const scientist = this.state.scientist;
+        const result = await putScientist(scientist.id, {
+            name: scientist.name,
+            specialties_id: scientist.specialty,
+            living: scientist.living,
+            img_url: scientist.img_url
+        });
+        if (result.e) {
+            this.setState({ message: result.e });
+        } else {
+            this.setState({ message: 'Scientist updated successfully'})
+        }
+        setTimeout(() => {
+            this.setState({ message: '' })
+            }, 3000);
     }
 
     render() {
-        const scientist = this.state;
+        const { scientist, specialties, message } = this.state;
         return(
-            <div className='scientist-form'>
-                <form onSubmit={(e) => this.handleSubmitChanges(e)}>
-                    <label htmlFor='name'>Name: {scientist.name}</label>
-                    <input name='name' onChange={(e) => this.handleChange(e, 'name')}/>
-                    <label htmlFor='specialty'>Specialty: {scientist.specialty}</label>
-                    <select name='specialty' onChange={(e) => this.handleChange(e, 'specialty')}>
-                        <option value='cryptography'>Cryptography</option>
-                        <option value='logic'>Logic</option>
-                        <option value='hardware design'>Hardware Design</option>
-                        <option value='open source'>Open Source</option>
-                    </select>
-                    <label htmlFor='living'>Living: {scientist.living ? 'True' : 'False'}</label>
-                    <select name='living' onChange={(e) => this.handleChange(e, 'living')}>
-                        <option value={true}>True</option>
-                        <option value={false}>False</option>
-                    </select>
-                    <button type='submit' >Submit Changes</button>
-                </form>
+            <div className='update-scientist'>
+                {message &&
+                    <div 
+                        className={classNames({
+                            message: true,
+                            'success': message === 'Scientist updated successfully',
+                            'is-error': message !== 'Scientist updated successfully'
+                        })}
+                    >
+                    {this.state.message}
+                    </div>
+                }
+                <div className='scientist-form'>
+                    {scientist.id &&
+                    <form onSubmit={(e) => this.handleSubmitChanges(e)}>
+                        <label htmlFor='name'>Name: </label>
+                        <input 
+                            name='name' 
+                            value={scientist.name} 
+                            onChange={(e) => this.handleChange(e, 'name')}
+                        />
+                        <label htmlFor='image-url'>Image url</label>
+                        <input
+                            name='img_url'
+                            value={scientist.img_url}
+                            onChange={(e) => this.handleChange(e, 'img_url')}
+                        />
+                        <label htmlFor='specialty'>Specialty: </label>
+                        <select  
+                            value={scientist.specialty}
+                            name='specialty' 
+                            onChange={(e) => this.handleChange(e, 'specialty')}
+                            >
+                            {specialties.map(specialty => {
+                                return <option
+                                            key={specialty.id} 
+                                            value={specialty.id}
+                                        >
+                                        {specialty.name}
+                                        </option>
+                            })}
+                        </select>
+                        <label htmlFor='living'>Living: </label>
+                        <select 
+                            name='living' 
+                            value={scientist.living} 
+                            onChange={(e) => this.handleChange(e, 'living')}>
+                            <option value={true}>True</option>
+                            <option value={false}>False</option>
+                        </select>
+                        <button type='submit' >Submit Changes</button>
+                    </form>}
+                </div>
             </div>
         )
     }
